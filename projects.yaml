@@ -623,3 +623,7 @@ projects:
         - *module_if
         - *module_hic_lpc11u35
         - records/board/wio_emw3166.yaml
+    sam3u2c_nanodap_hs_if:
+        - *module_if
+        - *module_hic_sam3u2c
+        - records/board/nanodap_hs.yaml
