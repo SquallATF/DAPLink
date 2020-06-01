@@ -40,4 +40,19 @@ COMPILER_ASSERT(DAPLINK_HIC_ID == DAPLINK_HIC_ID_SAM3U2C);
 #define PIN_CDC_LED_BIT         29
 #define PIN_CDC_LED             (1UL << PIN_CDC_LED_BIT)
 
+// nRESET OUT Pin
+#define PIN_nRESET_PORT         PIOA
+#define PIN_nRESET_BIT          25
+#define PIN_nRESET              (1UL << PIN_nRESET_BIT)
+
+// JTAG-TDI
+#define PIN_TDI_PORT          PIOB
+#define PIN_TDI_BIT           16
+#define PIN_TDI               (1UL << PIN_TDI_BIT)
+
+// JTAG-TDO
+#define PIN_TDO_PORT          PIOB
+#define PIN_TDO_BIT           15
+#define PIN_TDO               (1UL << PIN_TDO_BIT)
+
 #endif

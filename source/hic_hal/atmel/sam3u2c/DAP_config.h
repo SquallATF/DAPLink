@@ -54,11 +54,11 @@ Provides definitions about:
 
 /// Indicate that JTAG communication mode is available at the Debug Port.
 /// This information is returned by the command \ref DAP_Info as part of <b>Capabilities</b>.
-#define DAP_JTAG                0               ///< JTAG Mode: 1 = available, 0 = not available.
+#define DAP_JTAG                1               ///< JTAG Mode: 1 = available, 0 = not available.
 
 /// Configure maximum number of JTAG devices on the scan chain connected to the Debug Access Port.
 /// This setting impacts the RAM requirements of the Debug Unit. Valid range is 1 .. 255.
-#define DAP_JTAG_DEV_CNT        0               ///< Maximum number of JTAG devices on scan chain
+#define DAP_JTAG_DEV_CNT        8               ///< Maximum number of JTAG devices on scan chain
 
 /// Default communication mode on the Debug Access Port.
 /// Used for the command \ref DAP_Connect when Port Default mode is selected.
@@ -152,7 +152,43 @@ Configures the DAP Hardware I/O pins for JTAG mode:
  - TCK, TMS, TDI, nTRST, nRESET to output mode and set to high level.
  - TDO to input mode.
 */
-static __inline void PORT_JTAG_SETUP(void) {}
+static __inline void PORT_JTAG_SETUP(void)
+{
+    PMC->PMC_PCER0 = (1 << 10) | (1 << 11) | (1 << 12);  // Enable clock for all PIOs
+
+    /* nRESET output */
+    PIN_nRESET_PORT->PIO_MDDR = PIN_nRESET; // Disable multi drive
+    PIN_nRESET_PORT->PIO_PUER = PIN_nRESET; // pull-up enable
+    PIN_nRESET_PORT->PIO_SODR = PIN_nRESET; // HIGH
+    PIN_nRESET_PORT->PIO_OER  = PIN_nRESET; // output
+    PIN_nRESET_PORT->PIO_PER  = PIN_nRESET; // GPIO control
+
+    /* JTAG-TCK output */
+    PIN_SWCLK_PORT->PIO_MDDR = PIN_SWCLK; // Disable multi drive
+    PIN_SWCLK_PORT->PIO_PUER = PIN_SWCLK; // pull-up enable
+    PIN_SWCLK_PORT->PIO_SODR = PIN_SWCLK; // HIGH
+    PIN_SWCLK_PORT->PIO_OER  = PIN_SWCLK; // output
+    PIN_SWCLK_PORT->PIO_PER  = PIN_SWCLK; // GPIO control
+
+    /* JTAG-TMS output */
+    PIN_SWDIO_PORT->PIO_MDDR = PIN_SWDIO; // Disable multi drive
+    PIN_SWDIO_PORT->PIO_PUER = PIN_SWDIO; // pull-up enable
+    PIN_SWDIO_PORT->PIO_SODR = PIN_SWDIO; // HIGH
+    PIN_SWDIO_PORT->PIO_OER  = PIN_SWDIO; // output
+    PIN_SWDIO_PORT->PIO_PER  = PIN_SWDIO; // GPIO control
+
+    /* JTAG-TDI output */
+    PIN_TDI_PORT->PIO_MDDR = PIN_TDI; // Disable multi drive
+    PIN_TDI_PORT->PIO_PUER = PIN_TDI; // pull-up enable
+    PIN_TDI_PORT->PIO_SODR = PIN_TDI; // HIGH
+    PIN_TDI_PORT->PIO_OER  = PIN_TDI; // output
+    PIN_TDI_PORT->PIO_PER  = PIN_TDI; // GPIO control
+
+    /* JTAG-TDO input */
+    PIN_TDO_PORT->PIO_PER  = PIN_TDO;  // Disable multi drive
+    PIN_TDO_PORT->PIO_ODR  = PIN_TDO;  // Disable output
+    PIN_TDO_PORT->PIO_PUER = PIN_TDO; // Enable pull-up
+}
 
 /** Setup SWD I/O pins: SWCLK, SWDIO, and nRESET.
 Configures the DAP Hardware I/O pins for Serial Wire Debug (SWD) mode:
@@ -301,7 +337,7 @@ static __forceinline void     PIN_SWDIO_OUT_DISABLE(void)
 */
 static __forceinline uint32_t PIN_TDI_IN(void)
 {
-    return (0);   // Not available
+    return (PIN_TDI_PORT->PIO_PDSR & PIN_TDI) != 0;
 }
 
 /** TDI I/O pin: Set Output.
@@ -309,7 +345,11 @@ static __forceinline uint32_t PIN_TDI_IN(void)
 */
 static __forceinline void     PIN_TDI_OUT(uint32_t bit)
 {
-    ;             // Not available
+    if (bit & 1) {
+        PIN_TDI_PORT->PIO_SODR = PIN_TDI;
+    } else {
+        PIN_TDI_PORT->PIO_CODR = PIN_TDI;
+    }
 }
 
 
@@ -320,7 +360,7 @@ static __forceinline void     PIN_TDI_OUT(uint32_t bit)
 */
 static __forceinline uint32_t PIN_TDO_IN(void)
 {
-    return (0);   // Not available
+    return (PIN_TDO_PORT->PIO_PDSR & PIN_TDO) != 0;
 }
 
 
@@ -395,8 +435,12 @@ static __forceinline void     PIN_nRESET_OUT(uint32_t bit)
     }
 }
 #else
+extern void set_target_soft_reset(void);
+
 static __forceinline void     PIN_nRESET_OUT(uint32_t bit)
 {
+    set_target_soft_reset();
+
     if (bit & 1) {
         PIN_nRESET_PORT->PIO_SODR = PIN_nRESET;
 
