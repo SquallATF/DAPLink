@@ -452,7 +452,9 @@ void main_task(void * arg)
         // 30mS tick used for flashing LED when USB is busy
         if (flags & FLAGS_MAIN_30MS) {
 
+#if 0
             handle_reset_button();
+#endif
 
 #ifdef PBON_BUTTON
             // handle PBON pressed
