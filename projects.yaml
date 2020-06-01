@@ -484,6 +484,10 @@ projects:
         - *module_if
         - *module_hic_sam3u2c
         - records/board/ublox_evk_nina_b1.yaml
+    sam3u2c_nanodap_hs_if:
+        - *module_if
+        - *module_hic_sam3u2c
+        - records/board/nanodap_hs.yaml
     lpc11u35_vbluno51_if:
         - *module_if
         - *module_hic_lpc11u35
