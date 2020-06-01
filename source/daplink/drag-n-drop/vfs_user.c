@@ -47,7 +47,7 @@ static const char mbed_redirect_file[] =
     "<html>\r\n"
     "<head>\r\n"
     "<meta charset=\"utf-8\">\r\n"
-    "<title>mbed Website Shortcut</title>\r\n"
+    "<title>MuseLab Shop Website Shortcut</title>\r\n"
     "</head>\r\n"
     "<body>\r\n"
     "<script>\r\n"
